@@ -1,8 +1,6 @@
 const statusBox = document.getElementById('status')
 const checkBtn = document.getElementById('check-btn')
 
-const forgottenVar = 'цю змінну забули видалити'  // ESLint це знайде
-
 function getStatus() {
   const now = new Date()
   const timeString = now.toLocaleTimeString('uk-UA')
