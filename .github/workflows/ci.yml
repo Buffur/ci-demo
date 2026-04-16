@@ -16,26 +16,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  lint:
-    name: Lint Code
+  # додав з лаб 12
+  check-structure:
+    name: Check File Structure
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Verify required files exist
+        run: |
+          test -f index.html || { echo "❌ Відсутній index.html"; exit 1; }
+          test -f app.js || { echo "❌ Відсутній app.js"; exit 1; }
+          test -f style.css || { echo "❌ Відсутній style.css"; exit 1; }
+          echo "✅ Всі обов'язкові файли на місці."
 
+  # 2. Перевірка коду лінтерами
+  lint:
+    name: Lint Code
+    needs: check-structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run JavaScript linter
         run: npm run lint
-
       - name: Run HTML linter
         run: npm run lint:html
 
@@ -44,23 +55,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+        
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # поглиблене
+      - name: Print Deployment Info
+        run: |
+          echo "========================================="
+          echo "🚀 Деплой успішно завершено!"
+          echo "🔗 URL сайту: ${{ steps.deployment.outputs.page_url }}"
+          echo "📌 Хеш коміту: $GITHUB_SHA"
+          echo "🕒 Час розгортання: $(date)"
+          echo "========================================="
