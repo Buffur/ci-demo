@@ -20,11 +20,9 @@ jobs:
           test -f app.js || { echo "❌ Помилка: Відсутній app.js"; exit 1; }
           test -f style.css || { echo "❌ Помилка: Відсутній style.css"; exit 1; }
           echo "✅ Всі обов'язкові файли на місці."
-
-  # --- ОСНОВНИЙ ДЖОБ: Лінтери ---
   lint:
     name: Lint Code
-    needs: check-structure  # ВАЖЛИВО: цей рядок пов'язує два джоби
+    needs: check-structure
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
