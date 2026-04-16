@@ -7,25 +7,40 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
-    name: Lint Code
+  check-structure:
+    name: Check File Structure
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Verify required files exist
+        run: |
+          test -f index.html || { echo "❌ Помилка: Відсутній index.html"; exit 1; }
+          test -f app.js || { echo "❌ Помилка: Відсутній app.js"; exit 1; }
+          test -f style.css || { echo "❌ Помилка: Відсутній style.css"; exit 1; }
+          echo "✅ Всі обов'язкові файли на місці."
 
+  # --- ОСНОВНИЙ ДЖОБ: Лінтери ---
+  lint:
+    name: Lint Code
+    needs: check-structure  # ВАЖЛИВО: цей рядок пов'язує два джоби
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
+          
       - name: Install dependencies
         run: npm ci
-
+        
       - name: Run JavaScript linter
         run: npm run lint
-
+        
       - name: Run HTML linter
         run: npm run lint:html
