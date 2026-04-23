@@ -8,5 +8,4 @@ function getStatus() {
 }
 
 checkBtn.addEventListener('click', getStatus)
-
 getStatus()
